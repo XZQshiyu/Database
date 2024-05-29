@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建信用账户</title>
+</head>
+<body>
+    <h1>创建信用账户</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="account_id">账户ID:</label>
+        <input type="text" id="account_id" name="account_id" required><br><br>
+        <label for="bank_name">银行名称:</label>
+        <input type="text" id="bank_name" name="bank_name" required><br><br>
+        <label for="balance">余额:</label>
+        <input type="text" id="balance" name="balance" required><br><br>
+        <label for="open_date">开户日期:</label>
+        <input type="date" id="open_date" name="open_date" required><br><br>
+        <label for="overdraft">透支额度:</label>
+        <input type="text" id="overdraft" name="overdraft" required><br><br>
+        <label for="client_id">客户ID:</label>
+        <input type="text" id="client_id" name="client_id" required><br><br>
+        <input type="submit" value="创建账户">
+    </form>
+</body>
+</html>

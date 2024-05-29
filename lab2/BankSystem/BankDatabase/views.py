@@ -4,6 +4,7 @@ from django.db import connection
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseNotFound
+from django.contrib import messages
 # Create your views here.
 
 def client_management(request):
@@ -17,15 +18,35 @@ def loan_management(request):
 
 def account_management(request):
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM credit_account")
-        credit_accounts = cursor.fetchall()
-        cursor.execute("SELECT * FROM saving_account")
+        # 获取储蓄账户信息，包括利率和所有者
+        cursor.execute("""
+            SELECT sa.account_id, sa.bank_name, sa.balance, sa.open_date, 'saving' AS account_type, sa.rate, c.client_id, c.name
+            FROM saving_account sa
+            JOIN client_saving_account csa ON sa.account_id = csa.account_id
+            JOIN client c ON csa.client_id = c.client_id
+        """)
         saving_accounts = cursor.fetchall()
-    accounts = credit_accounts + saving_accounts
-    return render(request, "account/account_management.html", {"accounts": accounts})
+        
+        # 获取信用账户信息，包括透支额度和所有者
+        cursor.execute("""
+            SELECT ca.account_id, ca.bank_name, ca.balance, ca.open_date, 'credit' AS account_type, ca.overdraft, c.client_id, c.name
+            FROM credit_account ca
+            JOIN client_credit_account cca ON ca.account_id = cca.account_id
+            JOIN client c ON cca.client_id = c.client_id
+        """)
+        credit_accounts = cursor.fetchall()
+    
+    # 合并账户信息
+    accounts = saving_accounts + credit_accounts
+    
+    return render(request, 'account/account_management.html', {'accounts': accounts})
 
 def bankinfo_management(request):
-    return render(request, "bankinfo/bankinfo_management.html")
+    with connection.cursor() as cursor:
+        cursor.execute("CALL GetAllBanks()")
+        banks = cursor.fetchall()
+
+    return render(request, "bankinfo/bankinfo_management.html", {"banks": banks})
 
 # 客户管理
 
@@ -233,3 +254,104 @@ def modify_client_detail(request, client_id):
         return redirect(reverse('banksystem:detail_client', kwargs={'client_id': client_id}))
 
     return render(request, 'client/modify_client_detail.html', {'client': client})
+
+
+# 账户管理
+def create_credit(request):
+    if request.method == 'POST':
+        account_id = request.POST['account_id']
+        bank_name = request.POST['bank_name']
+        balance = float(request.POST['balance'])
+        open_date = request.POST['open_date']
+        overdraft = float(request.POST['overdraft'])
+        client_id = request.POST['client_id']
+
+        with connection.cursor() as cursor:
+            cursor.callproc('create_credit_account',[account_id, bank_name, balance, open_date, overdraft, client_id])
+        
+        return render(request, 'account/create_credit.html')
+    else:
+        return render(request, 'account/create_credit.html')
+
+def create_saving(request):
+    if request.method == 'POST':
+        account_id = request.POST['account_id']
+        bank_name = request.POST['bank_name']
+        balance = float(request.POST['balance'])
+        open_date = request.POST['open_date']
+        rate = float(request.POST['rate'])
+        client_id = request.POST['client_id']
+        
+        with connection.cursor() as cursor:
+            cursor.callproc('create_saving_account', [account_id, bank_name, balance, open_date, rate, client_id])
+        return render(request, 'account/create_saving.html')
+    else:
+        return render(request, 'account/create_saving.html')
+
+
+# 银行信息管理
+def add_bank(request):
+    if request.method == 'POST':
+        bank_name = request.POST.get('bank_name')
+        location = request.POST.get('location')
+        asset = request.POST.get('asset')
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL AddBank(%s, %s, %s)", [bank_name, location, asset])
+            messages.success(request, "Bank added successfully")
+        except Exception as e:
+            messages.error(request, "添加银行时出错: " + str(e))
+        return redirect(reverse('banksystem:bankinfo'))
+    
+    return render(request, 'bankinfo/add_bank.html')
+
+def update_bank(request, bank_name):
+    if request.method == 'POST':
+        location = request.POST['location']
+        asset = request.POST['asset']
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL UpdateBank(%s, %s, %s)", [bank_name, location, asset])
+            messages.success(request, '银行信息更新成功！')
+        except Exception as e:
+            messages.error(request, '更新银行信息时出错：' + str(e))
+        
+        return redirect('banksystem:bankinfo')
+    
+    with connection.cursor() as cursor:
+        cursor.execute("CALL GetBankByName(%s)", [bank_name])
+        bank = cursor.fetchone()
+    
+    return render(request, 'bankinfo/update_bank.html', {'bank': bank})
+
+def delete_bank(request, bank_name):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("CALL DeleteBank(%s)", [bank_name])
+        messages.success(request, '银行删除成功！')
+    except Exception as e:
+        messages.error(request, '删除银行时出错：' + str(e))
+    
+    return redirect('banksystem:bankinfo')
+
+def search_bank(request):
+    results = []
+    if request.method == 'POST':
+        bank_name = request.POST.get('bank_name', None)
+        location = request.POST.get('location', None)
+
+        with connection.cursor() as cursor:
+            cursor.callproc('search_bank', [bank_name, location])
+            results = cursor.fetchall()
+    return render(request, "bankinfo/search_bank.html", {"results": results})
+
+def get_bank_info(request, bank_name):
+    with connection.cursor() as cursor:
+        cursor.callproc('search_bank', [bank_name, None])
+        results = cursor.fetchall()
+    with connection.cursor() as cursor:
+        cursor.callproc('get_departments_by_bank', [bank_name])
+        departments = cursor.fetchall()
+    return render(request, 'bankinfo/bank_info.html', {'results':results, 'departments': departments})

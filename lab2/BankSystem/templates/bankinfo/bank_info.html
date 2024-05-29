@@ -41,9 +41,6 @@
           <li class="nav-item">
             <a class="nav-link" href="/banksystem/client">客户管理</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/banksystem/department">部门信息管理</a>
-          </li>
         </ul>
       </div>
     </div>
@@ -69,17 +66,35 @@
               </tr>
             </thead>
             <tbody>
-              {% for bank in banks %}
+                {% for result in results %}
                 <tr>
-                  <td>{{ bank.0 }}</td>
-                  <td>{{ bank.1 }}</td>
-                  <td>{{ bank.2 }}</td>
-                  <td>
-                    <a href="{% url 'banksystem:update_bank' bank.0 %}" class="btn btn-warning">修改</a>
-                    <a href="{% url 'banksystem:delete_bank' bank.0 %}" class="btn btn-danger" onclick="return confirm('确定要删除这个银行吗？')">删除</a>
-                    <a href="{% url 'banksystem:bank_info' bank.0 %}" class="btn btn-info">查看部门</a>
-                  </td>
+                    <td>{{ result.0 }}</td>
+                    <td>{{ result.1 }}</td>
+                    <td>{{ result.2 }}</td>
+                    <td>
+                        <a href="{% url 'banksystem:update_bank' result.0 %}" class="btn btn-warning">修改</a>
+                        <a href="{% url 'banksystem:delete_bank' result.0 %}" class="btn btn-danger" onclick="return confirm('确定要删除这个银行吗？')">删除</a>
+                    </td>
                 </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <h2 class="mt-4">部门信息</h2>
+        <div id="departmentTable" class="table-responsive mt-4">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>部门名称</th>
+                <th>部门负责人</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for department in departments %}
+              <tr>
+                <td>{{ department.name }}</td>
+                <td>{{ department.manager }}</td>
+              </tr>
               {% endfor %}
             </tbody>
           </table>

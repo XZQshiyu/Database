@@ -16,4 +16,13 @@ urlpatterns = [
     path('detail_client/<str:client_id>/', views.client_detail, name='detail_client'),
     path('delete_client/<str:client_id>/', views.delete_client_detail, name='delete_client'),
     path('modify_client/<str:client_id>/', views.modify_client_detail, name='modify_client'),
+
+    path("create_credit", views.create_credit, name="create_credit"),
+    path("create_saving", views.create_saving, name="create_saving"),
+
+    path("add_bank", views.add_bank, name="add_bank"),
+    path("update_bank/<str:bank_name>/", views.update_bank, name="update_bank"),
+    path('delete/<str:bank_name>/', views.delete_bank, name='delete_bank'),
+    path("search_bank", views.search_bank, name="search_bank"),
+    path("bank_info/<str:bank_name>/", views.get_bank_info, name="bank_info"),
 ]
