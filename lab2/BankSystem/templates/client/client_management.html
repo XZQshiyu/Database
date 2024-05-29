@@ -52,43 +52,37 @@
       <div class="col-md-12">
         <h1 class="mt-4">客户管理</h1>
         <div class="d-flex justify-content-end mb-3">
-          <button class="btn btn-primary me-2" onclick="addUser()">添加用户</button>
-          <button class="btn btn-danger me-2" onclick="deleteUser()">删除用户</button>
-          <button class="btn btn-warning me-2" onclick="modifyUser()">修改用户信息</button>
-          <button class="btn btn-success" onclick="searchUser()">查询用户</button>
+          <a class="btn btn-primary me-2" href="/banksystem/add_client">添加用户</a>
+          <a class="btn btn-danger me-2" href="/banksystem/delete_client">删除用户</a>
+          <a class="btn btn-warning me-2" href="/banksystem/modify_client">修改用户信息</a>
+          <a class="btn btn-success" href="/banksystem/search_client">查询用户</a>
         </div>
         <div id="userTable" class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>客户ID</th>
-                <th>身份证</th>
                 <th>姓名</th>
                 <th>性别</th>
-                <th>地址</th>
-                <th>电话</th>
-                <th>电子邮件</th>
-                <th>联系人姓名</th>
-                <th>联系人电话</th>
-                <th>联系人电子邮件</th>
-                <th>联系人关系</th>
+                <th>联系电话</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
               <!-- 这里将显示所有客户信息 -->
-              <tr>
-                <td>1</td>
-                <td>123456789012345678</td>
-                <td>张三</td>
-                <td>男</td>
-                <td>北京市海淀区</td>
-                <td>1234567890</td>
-                <td>zhangsan@example.com</td>
-                <td>李四</td>
-                <td>0987654321</td>
-                <td>lisi@example.com</td>
-                <td>朋友</td>
-              </tr>
+              {% for client in clients %}
+                <tr>
+                  <td>{{ client.0 }}</td>
+                  <td>{{ client.2 }}</td>
+                  <td>{{ client.3 }}</td>
+                  <td>{{ client.5 }}</td>
+                  <td>
+                    <a href="{% url 'banksystem:detail_client' client_id=client.0 %}" class="btn btn-info btn-sm">查看</a>
+                    <a href="{% url 'banksystem:modify_client' client_id=client.0 %}" class="btn btn-warning btn-sm">修改</a>
+                    <a href="{% url 'banksystem:delete_client' client_id=client.0 %}" class="btn btn-danger btn-sm">删除</a>
+                  </td>
+                </tr>
+              {% endfor %}
               <!-- 更多客户信息可以添加到这里 -->
             </tbody>
           </table>
@@ -96,27 +90,5 @@
       </div>
     </div>
   </div>
-
-  <script>
-    function addUser() {
-      // 添加客户的逻辑
-      alert('添加客户功能');
-    }
-
-    function deleteUser() {
-      // 删除客户的逻辑
-      alert('删除客户功能');
-    }
-
-    function modifyUser() {
-      // 修改客户信息的逻辑
-      alert('修改客户信息功能');
-    }
-
-    function searchUser() {
-      // 查询客户的逻辑
-      alert('查询客户功能');
-    }
-  </script>
 </body>
 </html>
