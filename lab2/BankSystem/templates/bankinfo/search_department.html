@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>查询银行信息</title>
+    <title>查询部门信息</title>
     <link href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
     <style>
@@ -47,43 +47,42 @@
   </nav>
 
     <div class="container">
-        <h1 class="mt-4">查询银行信息</h1>
-        <form method="post" action="{% url 'banksystem:search_bank' %}">
+        <h1 class="mt-4">查询部门信息</h1>
+        <form method="post" action="{% url 'banksystem:search_department' bank_name=bank_name %}">
             {% csrf_token %}
             <div class="mb-3">
-                <label for="bank_name" class="form-label">银行名称</label>
-                <input type="text" class="form-control" id="bank_name" name="bank_name">
+                <label for="department_id" class="form-label">部门ID</label>
+                <input type="text" class="form-control" id="department_id" name="department_id">
             </div>
             <div class="mb-3">
-                <label for="location" class="form-label">位置</label>
-                <input type="text" class="form-control" id="location" name="location">
+                <label for="department_name" class="form-label">部门名称</label>
+                <input type="text" class="form-control" id="department_name" name="department_name">
             </div>
             <button type="submit" class="btn btn-primary">查询</button>
         </form>
 
-        {% if results %}
+        {% if departments %}
             <h2 class="mt-4">查询结果</h2>
-            <p>共找到 {{ results|length }} 个银行</p>
+            <p>共找到 {{ departments|length }} 个部门</p>
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>银行名称</th>
-                        <th>位置</th>
-                        <th>资产</th>
+                        <th>部门ID</th>
+                        <th>部门名称</th>
+                        <th>部门类型</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for bank in results %}
+                    {% for department in departments %}
                         <tr>
-                            <td>{{ bank.0 }}</td>
-                            <td>{{ bank.1 }}</td>
-                            <td>{{ bank.2 }}</td>
+                            <td>{{ department.0 }}</td>
+                            <td>{{ department.1 }}</td>
+                            <td>{{ department.2 }}</td>
                             <td>
-                                <a href="{% url 'banksystem:update_bank' bank_name=bank.0 %}" class="btn btn-warning btn-sm">修改</a>
-                                <a href="{% url 'banksystem:delete_bank' bank_name=bank.0 %}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个银行吗？')">删除</a>
-                                <a href="{% url 'banksystem:bank_info' bank_name=bank.0 %}" class="btn btn-info">查看部门</a>
-                              </td>
+                                <a href="{% url 'banksystem:update_department' department.3 department.0 %}" class="btn btn-warning btn-sm">修改</a>
+                                <a href="{% url 'banksystem:delete_department' department.3 department.0 %}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这个部门吗？')">删除</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

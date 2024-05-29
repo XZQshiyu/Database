@@ -354,4 +354,104 @@ def get_bank_info(request, bank_name):
     with connection.cursor() as cursor:
         cursor.callproc('get_departments_by_bank', [bank_name])
         departments = cursor.fetchall()
+    print(departments)
     return render(request, 'bankinfo/bank_info.html', {'results':results, 'departments': departments})
+
+def add_department(request, bank_name):
+    if request.method == 'POST':
+        department_id = request.POST.get('department_id')
+        department_name = request.POST.get('department_name')
+        department_type = request.POST.get('department_type')
+        with connection.cursor() as cursor:
+            cursor.callproc('add_department', [department_id, bank_name, department_name, department_type]) 
+        return redirect(reverse('banksystem:bank_info', kwargs={'bank_name': bank_name}))
+    return render(request, 'bankinfo/add_department.html')
+
+def delete_department(request, bank_name, department_id):
+    with connection.cursor() as cursor:
+        cursor.callproc('delete_department', [department_id])
+    return redirect(reverse('banksystem:bank_info', kwargs={'bank_name': bank_name}))
+
+def update_department(request, bank_name, department_id):
+    if request.method == 'POST':
+        department_name = request.POST.get('department_name')
+        department_type = request.POST.get('department_type')
+        with connection.cursor() as cursor:
+            cursor.callproc('update_department', [department_id, department_name, department_type]) 
+        return redirect(reverse('banksystem:bank_info', kwargs={'bank_name': bank_name}))
+    else:
+        # 获取部门信息并显示在页面上
+        with connection.cursor() as cursor:
+            cursor.callproc('get_department_by_id', [department_id])
+            department_info = cursor.fetchone()
+        return render(request, 'bankinfo/update_department.html', {'department_id': department_info[0], 'department_name': department_info[2], 'department_type': department_info[3]})
+
+def search_department(request, bank_name):
+    results = []
+    if request.method == 'POST':
+        department_id = request.POST.get('department_id', None)
+        department_name = request.POST.get('department_name', None)
+
+        with connection.cursor() as cursor:
+            print(department_id, department_name)
+            cursor.callproc('search_department', [department_id, department_name, bank_name])
+            results = cursor.fetchall()
+            print(results)
+    return render(request, "bankinfo/search_department.html", {"bank_name": bank_name, "departments": results})
+
+# 员工信息管理
+
+def get_employees_by_department(request, bank_name, department_id):
+    employees = []
+    if request.method == 'GET':
+        with connection.cursor() as cursor:
+            cursor.callproc('get_employee_by_department_id', [department_id])
+            employees = cursor.fetchall()
+    return render(request, 'bankinfo/employee_list.html', {'bank_name': bank_name, 'department_id':department_id, 'employees': employees})
+
+def add_employee(request, bank_name, department_id):
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id')
+        id_number = request.POST.get('id')
+        name = request.POST.get('name')
+        sex = request.POST.get('sex')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        start_work_date = request.POST.get('start_work_date')
+        with connection.cursor() as cursor:
+            cursor.callproc('add_employee', [employee_id, department_id, id_number, name, sex, phone, address, start_work_date]) 
+        return redirect(reverse('banksystem:employee_list', kwargs={'bank_name': bank_name, 'department_id': department_id}))
+    return render(request, 'bankinfo/add_employee.html')
+
+def delete_employee(request, bank_name, department_id, employee_id):
+    with connection.cursor() as cursor:
+        cursor.callproc('delete_employee', [employee_id])
+    return redirect(reverse('banksystem:employee_list', kwargs={'bank_name': bank_name, 'department_id': department_id}))
+
+def update_employee(request, bank_name, department_id, employee_id):
+    if request.method == 'POST':
+        id_number = request.POST.get('id')
+        name = request.POST.get('name')
+        sex = request.POST.get('sex')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        start_work_date = request.POST.get('start_work_date')
+        with connection.cursor() as cursor:
+            cursor.callproc('update_employee', [employee_id, department_id, id_number, name, sex, phone, address, start_work_date])
+        return redirect(reverse('banksystem:employee_list', kwargs={'bank_name': bank_name, 'department_id': department_id}))
+    else:
+        with connection.cursor() as cursor:
+            cursor.callproc('get_employee_by_id', [employee_id])
+            employee_info = cursor.fetchone()
+        return render(request, 'bankinfo/update_employee.html', {'employee_id': employee_info[0], 'id_number': employee_info[2], 'name': employee_info[3], 'sex': employee_info[4], 'phone': employee_info[5], 'address': employee_info[6], 'start_work_date': employee_info[7]})
+
+def search_employee(request, bank_name, department_id):
+    results = []
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id', None)
+        name = request.POST.get('name', None)
+
+        with connection.cursor() as cursor:
+            cursor.callproc('search_employee', [employee_id, name, department_id])
+            results = cursor.fetchall()
+    return render(request, "bankinfo/search_employee.html", {"bank_name": bank_name, "department_id": department_id, "employees": results})

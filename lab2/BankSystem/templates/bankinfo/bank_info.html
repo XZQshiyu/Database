@@ -81,19 +81,31 @@
           </table>
         </div>
         <h2 class="mt-4">部门信息</h2>
+        <div>
+          <a href="{% url 'banksystem:add_department' bank_name=results.0.0 %}" class="btn btn-primary">添加部门</a>
+          <a href="{% url 'banksystem:search_department' bank_name=results.0.0 %}" class="btn btn-info">查找部门</a>
+        </div>
         <div id="departmentTable" class="table-responsive mt-4">
           <table class="table table-striped">
             <thead>
               <tr>
+                <th>部门ID</th>
                 <th>部门名称</th>
-                <th>部门负责人</th>
+                <th>部门类型</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
               {% for department in departments %}
               <tr>
-                <td>{{ department.name }}</td>
-                <td>{{ department.manager }}</td>
+                <td>{{ department.0 }}</td>
+                <td>{{ department.2 }}</td>
+                <td>{{ department.3 }}</td>
+                <td>
+                  <a href="{% url 'banksystem:update_department' department.1 department.0 %}" class="btn btn-warning">修改</a>
+                  <a href="{% url 'banksystem:delete_department' department.1 department.0 %}" class="btn btn-danger" onclick="return confirm('确定要删除这个部门吗？')">删除</a>
+                  <a href="{% url 'banksystem:employee_list' department.1 department.0 %}" class="btn btn-info">查看员工</a>
+                </td>
               </tr>
               {% endfor %}
             </tbody>

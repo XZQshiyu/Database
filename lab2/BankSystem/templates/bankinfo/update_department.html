@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改部门</title>
+    <link href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">修改部门</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="department_id" class="form-label">部门ID</label>
+                <input type="text" class="form-control" id="department_id" name="department_id" value="{{ department_id }}">
+            </div>
+            <div class="mb-3">
+                <label for="department_name" class="form-label">部门名称</label>
+                <input type="text" class="form-control" id="department_name" name="department_name" value="{{ department_name }}">
+            </div>
+            <div class="mb-3">
+                <label for="department_type" class="form-label">部门类型</label>
+                <input type="text" class="form-control" id="department_type" name="department_type" value="{{ department_type }}">
+            </div>
+            <button type="submit" class="btn btn-primary">保存修改</button>
+        </form>
+    </div>
+</body>
+</html>

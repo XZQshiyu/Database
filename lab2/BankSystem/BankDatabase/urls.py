@@ -25,4 +25,15 @@ urlpatterns = [
     path('delete/<str:bank_name>/', views.delete_bank, name='delete_bank'),
     path("search_bank", views.search_bank, name="search_bank"),
     path("bank_info/<str:bank_name>/", views.get_bank_info, name="bank_info"),
+
+    path("add_department/<str:bank_name>/", views.add_department, name="add_department"),
+    path("update_department/<str:bank_name>/<str:department_id>/", views.update_department, name="update_department"),
+    path('delete_department/<str:bank_name>/<str:department_id>/', views.delete_department, name='delete_department'),
+    path("search_department/<str:bank_name>/", views.search_department, name="search_department"),
+
+    path("employee_list/<str:bank_name>/<str:department_id>/", views.get_employees_by_department, name="employee_list"),
+    path("add_employee/<str:bank_name>/<str:department_id>/", views.add_employee, name="add_employee"),
+    path("update_employee/<str:bank_name>/<str:department_id>/<str:employee_id>/", views.update_employee, name="update_employee"),
+    path('delete_employee/<str:bank_name>/<str:department_id>/<str:employee_id>/', views.delete_employee, name='delete_employee'),
+    path("search_employee/<str:bank_name>/<str:department_id>/", views.search_employee, name="search_employee"),
 ]

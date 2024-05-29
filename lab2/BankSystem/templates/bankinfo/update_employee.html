@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改员工信息</title>
+    <link href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">修改员工信息</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="employee_id" class="form-label">员工ID</label>
+                <input type="text" class="form-control" id="employee_id" name="employee_id" value="{{ employee_id }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="identity_number" class="form-label">身份证号</label>
+                <input type="text" class="form-control" id="id" name="id" value="{{ id_number }}">
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ name }}">
+            </div>
+            <div class="mb-3">
+                <label for="gender" class="form-label">性别</label>
+                <input type="text" class="form-control" id="sex" name="sex" value="{{ sex }}">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">电话</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ phone }}">
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">地址</label>
+                <input type="text" class="form-control" id="address" name="address" value="{{ address }}">
+            </div>
+            <div class="mb-3">
+                <label for="hire_date" class="form-label">入职日期</label>
+                <input type="date" class="form-control" id="start_work_date" name="start_work_date" value="{{ start_work_date }}">
+            </div>
+            <button type="submit" class="btn btn-primary">保存修改</button>
+        </form>
+    </div>
+</body>
+</html>
