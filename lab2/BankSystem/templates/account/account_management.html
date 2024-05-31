@@ -55,17 +55,16 @@
     <div>
       <a href="/banksystem/create_saving" class="btn btn-primary">创建储蓄账户</a>
       <a href="/banksystem/create_credit" class="btn btn-primary">创建信用账户</a>
+      <a href="/banksystem/search_account" class="btn btn-primary">查询账户</a>
     </div>
     <table class="table table-striped">
       <thead>
         <tr>
             <th>账户ID</th>
             <th>银行名称</th>
-            <th>余额</th>
-            <th>开户日期</th>
             <th>账户类型</th>
-            <th>利率/透支额度</th>
-            <th>所有者</th>
+            <th>所有者ID</th>
+            <th>操作</th>
         </tr>
     </thead>
     <tbody>
@@ -75,15 +74,11 @@
                 <td>{{ account.1 }}</td>
                 <td>{{ account.2 }}</td>
                 <td>{{ account.3 }}</td>
-                <td>{{ account.4 }}</td>
                 <td>
-                    {% if account.4 == 'saving' %}
-                        {{ account.5 }}%
-                    {% else %}
-                        {{ account.5 }}
-                    {% endif %}
+                    <a href="{% url 'banksystem:view_account' account.0 %}" class="btn btn-primary">查看</a>
+                    <a href="{% url 'banksystem:update_account' account.0 account.2 %}" class="btn btn-primary">编辑</a>
+                    <a href="{% url 'banksystem:delete_account' account.0 account.2 %}" class="btn btn-danger">删除</a>
                 </td>
-                <td>{{ account.7 }}</td>
             </tr>
         {% endfor %}
     </tbody>

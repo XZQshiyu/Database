@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改账户</title>
+    <link href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-4">修改账户</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="account_id" class="form-label">账户ID</label>
+                <input type="text" class="form-control" id="account_id" name="account_id" value="{{ account_id }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="account_type" class="form-label">银行名称</label>
+                <input type="text" class="form-control" id="bank_name" name="bank_name" value="{{ account.1 }}">
+            </div>
+            <div class="mb-3">
+                <label for="balance" class="form-label">余额</label>
+                <input type="text" class="form-control" id="balance" name="balance" value="{{ account.2 }}">
+            </div>
+            {% if account_type == "credit" %}
+            <div class="mb-3">
+                <label for="credit_limit" class="form-label">信用额度</label>
+                <input type="text" class="form-control" id="overdraft" name="overdraft" value="{{ account.4 }}">
+            </div>
+            {% else %}
+            <div class="mb-3">
+                <label for="interest_rate" class="form-label">利率</label>
+                <input type="text" class="form-control" id="rate" name="rate" value="{{ account.4 }}">
+            </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">保存修改</button>
+        </form>
+    </div>
+</body>
+
+</html>

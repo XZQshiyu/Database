@@ -19,21 +19,11 @@ def loan_management(request):
 def account_management(request):
     with connection.cursor() as cursor:
         # 获取储蓄账户信息，包括利率和所有者
-        cursor.execute("""
-            SELECT sa.account_id, sa.bank_name, sa.balance, sa.open_date, 'saving' AS account_type, sa.rate, c.client_id, c.name
-            FROM saving_account sa
-            JOIN client_saving_account csa ON sa.account_id = csa.account_id
-            JOIN client c ON csa.client_id = c.client_id
-        """)
+        cursor.callproc('get_saving_account_by_all')
         saving_accounts = cursor.fetchall()
         
         # 获取信用账户信息，包括透支额度和所有者
-        cursor.execute("""
-            SELECT ca.account_id, ca.bank_name, ca.balance, ca.open_date, 'credit' AS account_type, ca.overdraft, c.client_id, c.name
-            FROM credit_account ca
-            JOIN client_credit_account cca ON ca.account_id = cca.account_id
-            JOIN client c ON cca.client_id = c.client_id
-        """)
+        cursor.callproc('get_credit_account_by_all')
         credit_accounts = cursor.fetchall()
     
     # 合并账户信息
@@ -269,7 +259,7 @@ def create_credit(request):
         with connection.cursor() as cursor:
             cursor.callproc('create_credit_account',[account_id, bank_name, balance, open_date, overdraft, client_id])
         
-        return render(request, 'account/create_credit.html')
+        return redirect(reverse('banksystem:account'))
     else:
         return render(request, 'account/create_credit.html')
 
@@ -284,10 +274,78 @@ def create_saving(request):
         
         with connection.cursor() as cursor:
             cursor.callproc('create_saving_account', [account_id, bank_name, balance, open_date, rate, client_id])
-        return render(request, 'account/create_saving.html')
+        return redirect(reverse('banksystem:account'))
     else:
         return render(request, 'account/create_saving.html')
 
+# 查看账户信息
+def view_account(request, account_id):
+    with connection.cursor() as cursor:
+        cursor.callproc('get_saving_account_by_id', [account_id])
+        account = cursor.fetchone()
+        if not account:
+            cursor.callproc('get_credit_account_by_id', [account_id])
+            account = cursor.fetchone()
+    return render(request, 'account/view_account.html', {'account': account})
+
+
+def update_account(request, account_id, account_type):
+    with connection.cursor() as cursor:
+        if(account_type == 'saving'):
+            cursor.execute("SELECT * FROM saving_account WHERE account_id = %s", [account_id])
+            account = cursor.fetchone()
+        else:
+            cursor.execute("SELECT * FROM credit_account WHERE account_id = %s", [account_id])
+            account = cursor.fetchone()
+    if not account:
+        return HttpResponseNotFound("Account not found")
+    
+    if request.method == 'POST':
+        bank_name = request.POST.get('bank_name')
+        balance = request.POST.get('balance')
+        if(account_type == 'saving'):
+            rate = request.POST.get('rate')
+            with connection.cursor() as cursor:
+                cursor.callproc('update_saving_account_by_account_id', [account_id, bank_name, balance, rate])
+        else:
+            overdraft = request.POST.get('overdraft')
+            with connection.cursor() as cursor:
+                cursor.callproc('update_credit_account_by_account_id', [account_id, bank_name, balance, overdraft])
+        
+        return redirect(reverse('banksystem:view_account', kwargs={'account_id': account_id}))
+    return render(request, 'account/update_account.html', {'account_id': account_id, 'account_type': account_type, 'account': account})
+
+def delete_account(request, account_id, account_type):
+    try:
+        with connection.cursor() as cursor:
+            if account_type == 'saving':
+                cursor.callproc('delete_saving_account_by_account_id', [account_id])
+            else:
+                cursor.callproc('delete_credit_account_by_account_id', [account_id])
+        messages.success(request, 'Account deleted successfully')
+        print('Account deleted successfully')
+    except Exception as e:
+        messages.error(request, 'Error deleting account: ' + str(e))
+        print('Error deleting account: ' + str(e))
+    return redirect(reverse('banksystem:account'))
+
+def search_account(request):
+    results = []
+    if request.method == 'POST':
+        account_id = request.POST.get('account_id', None)
+        bank_name = request.POST.get('bank_name', None)
+        name = request.POST.get('name', None)
+        client_id = request.POST.get('client_id', None)
+        print(account_id, bank_name, name, client_id)
+        with connection.cursor() as cursor:
+            cursor.callproc('search_saving_account', [client_id, account_id, bank_name, name])
+            saving_accounts = cursor.fetchall()
+        with connection.cursor() as cursor:
+            cursor.callproc('search_credit_account', [client_id, account_id, bank_name, name])
+            credit_accounts = cursor.fetchall()
+        results = saving_accounts + credit_accounts
+        print(results)
+    return render(request, "account/search_account.html", {"results": results})
 
 # 银行信息管理
 def add_bank(request):
@@ -455,3 +513,4 @@ def search_employee(request, bank_name, department_id):
             cursor.callproc('search_employee', [employee_id, name, department_id])
             results = cursor.fetchall()
     return render(request, "bankinfo/search_employee.html", {"bank_name": bank_name, "department_id": department_id, "employees": results})
+

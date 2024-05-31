@@ -19,6 +19,10 @@ urlpatterns = [
 
     path("create_credit", views.create_credit, name="create_credit"),
     path("create_saving", views.create_saving, name="create_saving"),
+    path("view_account/<str:account_id>/", views.view_account, name="view_account"),
+    path("delete_account/<str:account_id>/<str:account_type>/", views.delete_account, name="delete_account"),
+    path("update_account/<str:account_id>/<str:account_type>/", views.update_account, name="update_account"),
+    path("search_account", views.search_account, name="search_account"),
 
     path("add_bank", views.add_bank, name="add_bank"),
     path("update_bank/<str:bank_name>/", views.update_bank, name="update_bank"),
