@@ -52,38 +52,33 @@
 
   <!-- 主内容 -->
   <div class="container">
-    <h1 class="mt-4">贷款管理</h1>
-    <div>
-      <a href="{% url 'banksystem:add_loan' %}" class="btn btn-primary">创建贷款</a>
-      <a href="{% url 'banksystem:search_loan' %}" class="btn btn-primary">查询贷款</a>
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mt-4">还款详情</h1>
+            {% if loan_pay_info %}
+            <table class="table table-striped">
+                <tr>
+                    <th>还款ID</th>
+                    <th>还款金额</th>
+                    <th>还款日期</th>
+                </tr>
+                {% for item in loan_pay_info %}
+                <tr>
+                    <td>{{ item.0 }}</td>
+                    <td>{{ item.1 }}</td>
+                    <td>{{ item.2 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="{% url 'banksystem:loan' %}" class="btn btn-primary btn-sm">返回</a>
+            {% else %}
+            <p>没有还款信息</p>
+            <a href="{% url 'banksystem:loan' %}" class="btn btn-primary btn-sm">返回</a>
+            {% endif %}
+        </div>
     </div>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>贷款编号</th>
-          <th>贷款用户ID</th>
-          <th>银行名称</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for loan in loans %}
-        <tr>
-          <td>{{ loan.0 }}</td>
-          <td>{{ loan.1 }}</td>
-          <td>{{ loan.2 }}</td>
-          <td>
-            <a href="{% url 'banksystem:view_loan' loan.0 %}" class="btn btn-primary">查看详情</a>
-            <a href="{% url 'banksystem:update_loan' loan.0 %}" class="btn btn-primary">修改贷款</a>
-            <a href="{% url 'banksystem:delete_loan' loan.0 %}" class="btn btn-danger">删除贷款</a>
-            <a href="{% url 'banksystem:loan_payment' loan.0 %}" class="btn btn-primary">还款</a>
-            <a href="{% url 'banksystem:loan_pay_info' loan.0 %}" class="btn btn-primary">查看还款记录</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </div>
+    </div>
 </body>
 
 </html>

@@ -52,38 +52,24 @@
 
   <!-- 主内容 -->
   <div class="container">
-    <h1 class="mt-4">贷款管理</h1>
-    <div>
-      <a href="{% url 'banksystem:add_loan' %}" class="btn btn-primary">创建贷款</a>
-      <a href="{% url 'banksystem:search_loan' %}" class="btn btn-primary">查询贷款</a>
+    <h1 class="mt-4">还款</h1>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="loan_id" class="form-label">贷款ID:</label>
+        <input type="text" class="form-control" id="loan_id" name="loan_id" value="{{ loan.0 }}" readonly>
+      </div>
+      <div class="mb-3">
+        <label for="pay_money" class="form-label">还款金额:</label>
+        <input type="text" class="form-control" id="pay_money" name="pay_money" required>
+      </div>
+      <div class="mb-3">
+        <label for="pay_date" class="form-label">还款日期:</label>
+        <input type="date" class="form-control" id="pay_date" name="pay_date" required>
+      </div>
+        <button type="submit" class="btn btn-primary">提交</button>
+    </form>
     </div>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>贷款编号</th>
-          <th>贷款用户ID</th>
-          <th>银行名称</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for loan in loans %}
-        <tr>
-          <td>{{ loan.0 }}</td>
-          <td>{{ loan.1 }}</td>
-          <td>{{ loan.2 }}</td>
-          <td>
-            <a href="{% url 'banksystem:view_loan' loan.0 %}" class="btn btn-primary">查看详情</a>
-            <a href="{% url 'banksystem:update_loan' loan.0 %}" class="btn btn-primary">修改贷款</a>
-            <a href="{% url 'banksystem:delete_loan' loan.0 %}" class="btn btn-danger">删除贷款</a>
-            <a href="{% url 'banksystem:loan_payment' loan.0 %}" class="btn btn-primary">还款</a>
-            <a href="{% url 'banksystem:loan_pay_info' loan.0 %}" class="btn btn-primary">查看还款记录</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 </body>
 
 </html>

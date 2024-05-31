@@ -40,4 +40,12 @@ urlpatterns = [
     path("update_employee/<str:bank_name>/<str:department_id>/<str:employee_id>/", views.update_employee, name="update_employee"),
     path('delete_employee/<str:bank_name>/<str:department_id>/<str:employee_id>/', views.delete_employee, name='delete_employee'),
     path("search_employee/<str:bank_name>/<str:department_id>/", views.search_employee, name="search_employee"),
+
+    path("view_loan/<str:loan_id>", views.view_loan, name="view_loan"),
+    path("add_loan", views.add_loan, name="add_loan"),
+    path("update_loan/<str:loan_id>", views.update_loan, name="update_loan"),
+    path('delete_loan/<str:loan_id>/', views.delete_loan, name='delete_loan'),
+    path("search_loan", views.search_loan, name="search_loan"),
+    path("loan_payment/<str:loan_id>", views.loan_payment, name="loan_payment"),
+    path("loan_pay_info/<str:loan_id>", views.loan_pay_info, name="loan_pay_info"),
 ]

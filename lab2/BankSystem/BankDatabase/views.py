@@ -14,7 +14,11 @@ def client_management(request):
     return render(request, "client/client_management.html", {"clients": results})
 
 def loan_management(request):
-    return render(request, "loan/loan_management.html")
+    with connection.cursor() as cursor:
+        cursor.callproc('get_all_loans')
+        results = cursor.fetchall()
+
+    return render(request, "loan/loan_management.html", {"loans": results})
 
 def account_management(request):
     with connection.cursor() as cursor:
@@ -514,3 +518,99 @@ def search_employee(request, bank_name, department_id):
             results = cursor.fetchall()
     return render(request, "bankinfo/search_employee.html", {"bank_name": bank_name, "department_id": department_id, "employees": results})
 
+
+# 贷款管理
+
+# 查看贷款具体信息
+def view_loan(request, loan_id):
+    with connection.cursor() as cursor:
+        cursor.callproc('get_loan_by_id', [loan_id])
+        loan = cursor.fetchone()
+    return render(request, 'loan/view_loan.html', {'loan': loan})
+
+def add_loan(request):
+    if request.method == 'POST':
+        loan_id = request.POST.get('loan_id')
+        client_id = request.POST.get('client_id')
+        bank_name = request.POST.get('bank_name')
+        loan_money = request.POST.get('loan_money')
+        loan_rate = request.POST.get('loan_rate')
+        loan_date = request.POST.get('loan_date')
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('add_loan', [loan_id, client_id, bank_name, loan_money, loan_rate, loan_date])
+            messages.success(request, 'Loan added successfully')
+        except Exception as e:
+            messages.error(request, 'Error adding loan: ' + str(e))
+        return redirect(reverse('banksystem:loan'))
+    else:
+        return render(request, 'loan/add_loan.html')
+
+def update_loan(request, loan_id):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM loan WHERE loan_id = %s", [loan_id])
+        loan = cursor.fetchone()
+    if not loan:
+        return HttpResponseNotFound("Loan not found")
+
+    if request.method == 'POST':
+        client_id = request.POST.get('client_id')
+        bank_name = request.POST.get('bank_name')
+        loan_money = request.POST.get('loan_money')
+        loan_rate = request.POST.get('loan_rate')
+        with connection.cursor() as cursor:
+            cursor.callproc('update_loan', [loan_id, client_id, bank_name ,loan_money, loan_rate])
+        return redirect(reverse('banksystem:view_loan', kwargs={'loan_id': loan_id}))
+    return render(request, 'loan/update_loan.html', {'loan_id': loan_id, 'loan': loan})
+
+# 删除贷款
+def delete_loan(request, loan_id):
+    try:
+        with connection.cursor() as cursor:
+            cursor.callproc('delete_loan', [loan_id])
+        messages.success(request, 'Loan deleted successfully')
+    except Exception as e:
+        messages.error(request, 'Error deleting loan: ' + str(e))
+    return redirect(reverse('banksystem:loan'))
+
+def search_loan(request):
+    results = []
+    if request.method == 'POST':
+        loan_id = request.POST.get('loan_id', None)
+        client_id = request.POST.get('client_id', None)
+        bank_name = request.POST.get('bank_name', None)
+        name = request.POST.get('name', None)
+
+        with connection.cursor() as cursor:
+            cursor.callproc('search_loan', [loan_id, client_id, bank_name, name])
+            results = cursor.fetchall()
+    return render(request, "loan/search_loan.html", {"results": results})
+
+def loan_payment(request, loan_id):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM loan WHERE loan_id = %s", [loan_id])
+        loan = cursor.fetchone()
+    if not loan:
+        return HttpResponseNotFound("Loan not found")
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pay_id FROM pay_loan WHERE loan_id = %s", [loan_id])
+        pay_ids = cursor.fetchall()
+    if request.method == 'POST':
+        if pay_ids:
+            pay_id = pay_ids[-1][0] + 1
+        else:
+            pay_id = 0
+        pay_money = request.POST.get('pay_money')
+        pay_date = request.POST.get('pay_date')
+        with connection.cursor() as cursor:
+            cursor.callproc('add_loan_payment', [pay_id, pay_money, pay_date, loan_id])
+        return redirect(reverse('banksystem:loan'))
+    return render(request, 'loan/loan_payment.html', {'loan_id': loan_id, 'loan': loan})
+
+def loan_pay_info(request, loan_id):
+    with connection.cursor() as cursor:
+        cursor.callproc('get_loan_payment', [loan_id])
+        loan_pay_info = cursor.fetchall()
+    return render(request, 'loan/loan_pay_info.html', {'loan_pay_info': loan_pay_info})
