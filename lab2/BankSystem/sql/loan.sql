@@ -1,14 +1,48 @@
 use banksystem;
 
+DELIMITER //
+
+CREATE FUNCTION get_remaining_loan_amount(loan_id VARCHAR(32))
+RETURNS FLOAT
+DETERMINISTIC
+BEGIN
+    DECLARE total_loan FLOAT;
+    DECLARE total_paid FLOAT;
+    DECLARE remaining_amount FLOAT;
+
+    -- 获取贷款总金额
+    SELECT loan_money INTO total_loan
+    FROM loan
+    WHERE loan.loan_id = loan_id;
+
+    -- 获取已支付的总金额
+    SELECT IFNULL(SUM(pay_money), 0) INTO total_paid
+    FROM pay_loan
+    WHERE pay_loan.loan_id = loan_id;
+
+    -- 计算剩余金额
+    SET remaining_amount = total_loan - total_paid;
+
+    RETURN remaining_amount;
+END//
+
+DELIMITER ;
+
 -- 一键查询贷款账户存储过程
-drop procedure if exists get_all_loans;
-delimiter //
-create procedure get_all_loans()
-begin
-    select loan_id, client_id, bank_name 
-        from loan;
-end //
-delimiter ;
+DROP PROCEDURE IF EXISTS get_all_loans;
+DELIMITER //
+
+CREATE PROCEDURE get_all_loans()
+BEGIN
+    SELECT 
+        loan_id, 
+        client_id, 
+        bank_name,
+        get_remaining_loan_amount(loan_id) AS remaining_amount
+    FROM loan;
+END //
+
+DELIMITER ;
 
 -- 创建贷款账户存储过程
 drop procedure if exists add_loan;
@@ -41,10 +75,12 @@ create procedure get_loan_by_id(
     in p_loan_id char(18)
 )
 begin
-    select loan_id, loan.client_id, bank_name, loan_money, loan_rate, loan_date, c.name
+    
+    select loan_id, loan.client_id, bank_name, loan_money, loan_rate, loan_date, c.name, get_remaining_loan_amount(loan_id) AS remaining_amount
         from loan
         join client c on loan.client_id = c.client_id
         where loan.loan_id = p_loan_id;
+
 end //
 delimiter ;
 
@@ -80,10 +116,10 @@ create procedure delete_loan(
 )
 begin
     -- 删除贷款账户
-    set foreign_key_checks = 0;
+    -- set foreign_key_checks = 0;
     delete from loan
     where loan_id = p_loan_id;
-    set foreign_key_checks = 1;
+    -- set foreign_key_checks = 1;
 end //
 delimiter ;
 

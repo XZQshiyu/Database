@@ -134,3 +134,19 @@ begin
     set asset = asset + new.pay_money
     where bank_name = (select bank_name from loan where loan_id = new.loan_id);
 end ;
+//
+delimiter ;
+
+
+-- 当删除一个贷款时，更新银行的资产
+delimiter //
+create trigger after_loan_delete
+after delete on loan
+for each row
+begin
+    update Bank
+    set asset = asset + old.loan_money
+    where bank_name = old.bank_name;
+end ;
+//
+delimiter ;

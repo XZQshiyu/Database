@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponseNotFound
 from django.contrib import messages
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 # Create your views here.
 
 def client_management(request):
@@ -357,10 +359,20 @@ def add_bank(request):
         bank_name = request.POST.get('bank_name')
         location = request.POST.get('location')
         asset = request.POST.get('asset')
-
+        
+        # 读取图像文件
+        image_file = request.FILES.get('image')
+        image_url = None
+        if image_file:
+            # 生成图片文件名
+            image_name = f"images/{bank_name.replace(' ', '_').lower()}.jpg"
+            # 保存文件
+            image_path = default_storage.save(image_name, ContentFile(image_file.read()))
+            # 获取文件的 URL
+            image_url = f"/media/{image_path}"
         try:
             with connection.cursor() as cursor:
-                cursor.execute("CALL AddBank(%s, %s, %s)", [bank_name, location, asset])
+                cursor.execute("CALL AddBank(%s, %s, %s, %s)", [bank_name, location, asset, image_url])
             messages.success(request, "Bank added successfully")
         except Exception as e:
             messages.error(request, "添加银行时出错: " + str(e))
@@ -372,10 +384,19 @@ def update_bank(request, bank_name):
     if request.method == 'POST':
         location = request.POST['location']
         asset = request.POST['asset']
-        
+        # 读取图像文件
+        image_file = request.FILES.get('image')
+        image_url = None
+        if image_file:
+            # 生成图片文件名
+            image_name = f"images/{bank_name.replace(' ', '_').lower()}.jpg"
+            # 保存文件
+            image_path = default_storage.save(image_name, ContentFile(image_file.read()))
+            # 获取文件的 URL
+            image_url = f"/media/{image_path}"
         try:
             with connection.cursor() as cursor:
-                cursor.execute("CALL UpdateBank(%s, %s, %s)", [bank_name, location, asset])
+                cursor.execute("CALL UpdateBank(%s, %s, %s, %s)", [bank_name, location, asset, image_url])
             messages.success(request, '银行信息更新成功！')
         except Exception as e:
             messages.error(request, '更新银行信息时出错：' + str(e))
@@ -526,6 +547,7 @@ def view_loan(request, loan_id):
     with connection.cursor() as cursor:
         cursor.callproc('get_loan_by_id', [loan_id])
         loan = cursor.fetchone()
+    print(loan)
     return render(request, 'loan/view_loan.html', {'loan': loan})
 
 def add_loan(request):

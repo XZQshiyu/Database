@@ -159,12 +159,12 @@ create procedure delete_saving_account_by_account_id(
     IN p_account_id CHAR(18)
 )
 begin 
-    SET FOREIGN_KEY_CHECKS = 0;
+    -- SET FOREIGN_KEY_CHECKS = 0;
     DELETE FROM saving_account
     WHERE account_id = p_account_id;
     delete from client_saving_account
     where account_id = p_account_id;
-    SET FOREIGN_KEY_CHECKS = 1;
+    -- SET FOREIGN_KEY_CHECKS = 1;
 end //
 delimiter ;
 
@@ -175,12 +175,12 @@ create procedure delete_credit_account_by_account_id(
     IN p_account_id CHAR(18)
 )
 begin 
-    SET FOREIGN_KEY_CHECKS = 0;
+    -- SET FOREIGN_KEY_CHECKS = 0;
     DELETE FROM credit_account
     WHERE account_id = p_account_id;
     delete from client_credit_account
     where account_id = p_account_id;
-    SET FOREIGN_KEY_CHECKS = 1;
+    -- SET FOREIGN_KEY_CHECKS = 1;
 end //
 delimiter ;
 

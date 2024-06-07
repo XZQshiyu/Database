@@ -79,7 +79,7 @@ create table pay_loan
     pay_money   float   not null,
     pay_date    date    not null,
     loan_id     varchar(32) not null,
-    primary key (pay_id, loan_id),
+    primary key (pay_id, loan_id)   on delete cascade,
     foreign key (loan_id) references loan(loan_id) ON DELETE CASCADE
 );
 

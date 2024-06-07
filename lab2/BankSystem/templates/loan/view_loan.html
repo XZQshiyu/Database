@@ -85,6 +85,10 @@
                     <th>贷款人</th>
                     <td>{{ loan.6 }}</td>
                 </tr>
+                <tr>
+                    <th>贷款剩余金额</th>
+                    <td>{{ loan.7 }}</td>
+                </tr>
             </table>
             <a href="{% url 'banksystem:loan' %}" class="btn btn-primary btn-sm">返回</a>
             <a href="{% url 'banksystem:update_loan' loan.0 %}" class="btn btn-primary btn-sm">编辑</a>
