@@ -20,7 +20,8 @@ create table Bank
 (
     bank_name   varchar(30) primary key,
     location    varchar(30) not null,
-    asset       float not null
+    asset       float not null,
+    image       VARCHAR(255)
 );
 
 create table department
@@ -29,7 +30,7 @@ create table department
     bank_name       varchar(30) not null,
     department_name varchar(30) not null,
     department_type varchar(30) not null,
-    foreign key (bank_name) references Bank(bank_name)
+    foreign key (bank_name) references Bank(bank_name) ON DELETE CASCADE
 );
 
 create table employee
@@ -42,7 +43,7 @@ create table employee
     phone           varchar(30) not null,
     address         varchar(30) not null,
     start_work_date date    not null,
-    foreign key(department_id)  references  department(department_id)
+    foreign key(department_id)  references  department(department_id) ON DELETE CASCADE
 );
 
 create table client 
@@ -68,8 +69,8 @@ create table loan
     loan_money  float   not null,
     loan_rate   float   not null,
     loan_date   date    not null,
-    foreign key(client_id)  references  client(client_id),
-    foreign key(bank_name)  references  Bank(bank_name)       
+    foreign key(client_id)  references  client(client_id) ON DELETE CASCADE,
+    foreign key(bank_name)  references  Bank(bank_name) ON DELETE CASCADE      
 );
 
 create table pay_loan
@@ -79,7 +80,7 @@ create table pay_loan
     pay_date    date    not null,
     loan_id     varchar(32) not null,
     primary key (pay_id, loan_id),
-    foreign key (loan_id) references loan(loan_id)
+    foreign key (loan_id) references loan(loan_id) ON DELETE CASCADE
 );
 
 create table credit_account 
@@ -89,7 +90,7 @@ create table credit_account
     balance     float   not null,
     open_date   date    not null,
     overdraft   float   not null,
-    foreign key (bank_name) references  Bank(bank_name)
+    foreign key (bank_name) references  Bank(bank_name) ON DELETE CASCADE
 );
 
 create table saving_account
@@ -99,7 +100,7 @@ create table saving_account
     balance     float   not null,
     open_date   date    not null,
     rate        float   not null,
-    foreign key (bank_name) references  Bank(bank_name)
+    foreign key (bank_name) references  Bank(bank_name) ON DELETE CASCADE
 );
 
 create table client_credit_account
@@ -108,8 +109,8 @@ create table client_credit_account
     account_id  char(18)    not null,
     lateset_visit_date date,
     primary key (client_id, account_id),
-    foreign key (client_id) references client(client_id),
-    foreign key (account_id) references credit_account(account_id)
+    foreign key (client_id) references client(client_id) ON DELETE CASCADE,
+    foreign key (account_id) references credit_account(account_id) ON DELETE CASCADE
 );
 
 create table client_saving_account
@@ -118,6 +119,6 @@ create table client_saving_account
     account_id  char(18)    not null,
     lateset_visit_date date,
     primary key (client_id, account_id),
-    foreign key (client_id) references client(client_id),
-    foreign key (account_id) references saving_account(account_id)
+    foreign key (client_id) references client(client_id) ON DELETE CASCADE,
+    foreign key (account_id) references saving_account(account_id) ON DELETE CASCADE
 );

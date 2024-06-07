@@ -4,7 +4,7 @@ drop procedure if exists GetAllBanks;
 delimiter //
 CREATE PROCEDURE GetAllBanks()
 BEGIN
-    SELECT bank_name, location, asset FROM Bank;
+    SELECT bank_name, location, asset, image FROM Bank;
 END //
 delimiter ;
 
@@ -14,10 +14,22 @@ delimiter //
 CREATE PROCEDURE AddBank(
     IN p_bank_name VARCHAR(30),
     IN p_location VARCHAR(30),
-    IN p_asset FLOAT
+    IN p_asset FLOAT,
+    IN p_image VARCHAR(255)
 )
 BEGIN
-    INSERT INTO Bank (bank_name, location, asset) VALUES (p_bank_name, p_location, p_asset);
+    DECLARE asset_limit_reached BOOLEAN DEFAULT FALSE;
+
+    if p_asset < 0 THEN
+        set asset_limit_reached = TRUE;
+    end if;
+
+    if asset_limit_reached THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Bank asset cannot be negative';
+    else
+        INSERT INTO Bank (bank_name, location, asset, image) VALUES (p_bank_name, p_location, p_asset, p_image);
+    end if;
 END //
 delimiter ;
 
@@ -27,11 +39,12 @@ DELIMITER //
 CREATE PROCEDURE UpdateBank(
     IN p_bank_name VARCHAR(30),
     IN p_location VARCHAR(30),
-    IN p_asset FLOAT
+    IN p_asset FLOAT,
+    IN p_image VARCHAR(255)
 )
 BEGIN
     UPDATE Bank 
-    SET location = p_location, asset = p_asset 
+    SET location = p_location, asset = p_asset, image = p_image
     WHERE bank_name = p_bank_name;
 END //
 DELIMITER ;
@@ -55,7 +68,7 @@ CREATE PROCEDURE GetBankByName(
     IN p_bank_name VARCHAR(30)
 )
 BEGIN
-    SELECT bank_name, location, asset 
+    SELECT bank_name, location, asset, image
     FROM Bank 
     WHERE bank_name = p_bank_name;
 END //
@@ -69,7 +82,7 @@ CREATE PROCEDURE search_bank(
     IN p_location VARCHAR(30)
 )
 BEGIN
-    SELECT bank_name, location, asset
+    SELECT bank_name, location, asset, image
     FROM Bank
     WHERE (p_bank_name IS NULL OR bank_name LIKE CONCAT('%', p_bank_name, '%'))
     AND (p_location IS NULL OR location LIKE CONCAT('%', p_location, '%'));

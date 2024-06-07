@@ -14,6 +14,10 @@
     .container {
       margin-top: 20px;
     }
+    .img-thumbnail {
+      max-width: 100px; /* 设置图片的最大宽度 */
+      height: auto; /* 保持图片的比例 */
+    }
   </style>
 </head>
 <body>
@@ -62,6 +66,7 @@
                 <th>银行名称</th>
                 <th>位置</th>
                 <th>资产</th>
+                <th>图像</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -71,6 +76,9 @@
                   <td>{{ bank.0 }}</td>
                   <td>{{ bank.1 }}</td>
                   <td>{{ bank.2 }}</td>
+                  <td>
+                  <img src="{{ bank.3 }}" alt="Bank Image" class="img-thumbnail">
+                </td>
                   <td>
                     <a href="{% url 'banksystem:update_bank' bank.0 %}" class="btn btn-warning">修改</a>
                     <a href="{% url 'banksystem:delete_bank' bank.0 %}" class="btn btn-danger" onclick="return confirm('确定要删除这个银行吗？')">删除</a>
