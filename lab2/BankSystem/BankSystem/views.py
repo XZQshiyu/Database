@@ -9,7 +9,8 @@ def signin(request):
         # 验证表单数据的有效性
         username = data.get("user")
         password = data.get("password")
-
+        print(username)
+        print(password)
         if username and password:
             if username == "lyz" and password == "Lyz791387210":
                 return render(request, "index.html")
