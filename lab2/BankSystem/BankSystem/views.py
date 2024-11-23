@@ -12,7 +12,7 @@ def signin(request):
         print(username)
         print(password)
         if username and password:
-            if username == "lyz" and password == "Lyz791387210":
+            if username == "lyz" and password == "":
                 return render(request, "index.html")
             else:
                 messages.error(request, "Invalid username or passowrd")
